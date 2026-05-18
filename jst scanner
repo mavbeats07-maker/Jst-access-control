@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JST Mobile AI Scanner</title>
+
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+<style>
+
+body{
+margin:0;
+font-family:Segoe UI;
+background:#0a2a43;
+color:white;
+}
+
+header{
+text-align:center;
+padding:12px;
+background:rgba(0,0,0,0.6);
+}
+
+.container{padding:10px;}
+
+.card{
+background:white;
+color:black;
+padding:12px;
+border-radius:12px;
+margin-bottom:12px;
+}
+
+video{
+width:100%;
+border-radius:12px;
+background:black;
+}
+
+button{
+width:100%;
+padding:14px;
+margin-top:10px;
+border:none;
+border-radius:10px;
+background:#06304d;
+color:white;
+font-weight:bold;
+font-size:16px;
+}
+
+button:active{
+transform:scale(0.98);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:10px;
+font-size:13px;
+}
+
+th{
+background:#0a2a43;
+color:white;
+padding:10px;
+}
+
+td{
+background:white;
+color:black;
+padding:10px;
+}
+
+#status{
+margin-top:8px;
+font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h2>🚗 JST MOBILE AI SCANNER</h2>
+<p>Optimized for Android & iPhone</p>
+</header>
+
+<div class="container">
+
+<div class="card">
+<h3>📷 Camera Scanner</h3>
+
+<video id="video" autoplay playsinline muted></video>
+
+<button onclick="capture()">📸 SCAN DOCUMENT</button>
+
+<p id="status">Starting camera...</p>
+
+<pre id="result"></pre>
+</div>
+
+<div class="card">
+<h3>🧑‍💻 Live Data</h3>
+
+<table>
+<thead>
+<tr>
+<th>VIN</th>
+<th>Plate</th>
+<th>ID</th>
+<th>Model</th>
+<th>Time</th>
+</tr>
+</thead>
+
+<tbody id="tableBody"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, query, orderBy }
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+apiKey: "AIzaSyBD_sK8xF3m2t_s_b8ihzLx8XHs-M1MGGI",
+authDomain: "jackson-smart-technologi-1db26.firebaseapp.com",
+projectId: "jackson-smart-technologi-1db26",
+storageBucket: "jackson-smart-technologi-1db26.firebasestorage.app",
+messagingSenderId: "400637493049",
+appId: "1:400637493049:web:8d349168400988493672e8"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const video = document.getElementById("video");
+
+/* =========================
+   ✅ MOBILE CAMERA FIX (SAFE MODE)
+========================= */
+async function startCamera(){
+
+document.getElementById("status").innerText = "Requesting camera...";
+
+try{
+
+/* BEST MOBILE METHOD (NO 'exact') */
+const stream = await navigator.mediaDevices.getUserMedia({
+video: {
+facingMode: "environment"
+},
+audio: false
+});
+
+video.srcObject = stream;
+
+await video.play();
+
+document.getElementById("status").innerText = "Camera ready ✔";
+
+}catch(err){
+
+console.log(err);
+
+/* LAST FALLBACK */
+try{
+const stream = await navigator.mediaDevices.getUserMedia({video:true});
+video.srcObject = stream;
+await video.play();
+document.getElementById("status").innerText = "Fallback camera active";
+}catch(e){
+document.getElementById("status").innerText = "Camera blocked ❌";
+}
+
+}
+
+}
+
+startCamera();
+
+/* =========================
+   OCR CLEAN PARSER
+========================= */
+function parseText(text){
+
+let vin = text.match(/[A-HJ-NPR-Z0-9]{17}/i)?.[0] || "";
+let id = text.match(/\b\d{13}\b/)?.[0] || "";
+let plate = text.match(/[A-Z]{2,3}\s?\d{3,6}/i)?.[0] || "";
+
+let model = "";
+if(text.toLowerCase().includes("toyota")) model="Toyota";
+if(text.toLowerCase().includes("bmw")) model="BMW";
+if(text.toLowerCase().includes("mercedes")) model="Mercedes";
+
+return {vin,id,plate,model};
+}
+
+/* =========================
+   CAPTURE FUNCTION (FIXED)
+========================= */
+window.capture = async function(){
+
+if(!video.videoWidth){
+document.getElementById("status").innerText = "Camera not ready...";
+return;
+}
+
+document.getElementById("status").innerText = "Scanning...";
+
+const canvas = document.createElement("canvas");
+
+/* FIX: proper scaling for mobile OCR */
+canvas.width = video.videoWidth;
+canvas.height = video.videoHeight;
+
+const ctx = canvas.getContext("2d");
+ctx.drawImage(video,0,0,canvas.width,canvas.height);
+
+const image = canvas.toDataURL("image/jpeg",0.8);
+
+/* OCR */
+const result = await Tesseract.recognize(image,"eng");
+const text = result.data.text;
+
+const parsed = parseText(text);
+
+document.getElementById("result").innerText =
+JSON.stringify(parsed,null,2);
+
+/* SAVE FIREBASE */
+await addDoc(collection(db,"vehicleAccessLogs"),{
+vin: parsed.vin,
+idNumber: parsed.id,
+plate: parsed.plate,
+carModel: parsed.model,
+rawText: text,
+time: Date.now()
+});
+
+document.getElementById("status").innerText = "Saved ✔";
+
+};
+
+/* =========================
+   LIVE TABLE
+========================= */
+const q = query(collection(db,"vehicleAccessLogs"), orderBy("time","desc"));
+
+onSnapshot(q,(snap)=>{
+
+const table = document.getElementById("tableBody");
+table.innerHTML = "";
+
+snap.forEach(doc=>{
+
+const d = doc.data();
+
+table.innerHTML += `
+<tr>
+<td>${d.vin || "-"}</td>
+<td>${d.plate || "-"}</td>
+<td>${d.idNumber || "-"}</td>
+<td>${d.carModel || "-"}</td>
+<td>${new Date(d.time).toLocaleString()}</td>
+</tr>
+`;
+
+});
+
+});
+
+</script>
+
+</body>
+</html>
