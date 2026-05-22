@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,43 +5,67 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>JST Resident Access System</title>
+<title>JST – Visitor Access Control</title>
 
 <style>
 
 body{
 margin:0;
-font-family:Segoe UI;
+min-height:100vh;
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+
 background:
-linear-gradient(rgba(10,42,67,0.9),rgba(10,42,67,0.9)),
+linear-gradient(rgba(10,42,67,0.88), rgba(10,42,67,0.88)),
 url("https://images.unsplash.com/photo-1518770660439-4636190af475");
 
 background-size:cover;
 background-position:center;
-min-height:100vh;
-color:white;
+background-attachment:fixed;
 }
 
 .container{
-max-width:900px;
-margin:auto;
 padding:20px;
 }
 
+header{
+text-align:center;
+padding:25px 10px;
+}
+
+.logo{
+font-size:46px;
+font-weight:900;
+letter-spacing:5px;
+}
+
+.logo .j{color:#000;}
+.logo .s{color:#0a2a43;}
+.logo .t{color:#000;}
+
+.logo-sub{
+color:#e0e0e0;
+font-size:14px;
+margin-top:5px;
+}
+
+header p{
+color:white;
+margin-top:10px;
+}
+
 .card{
-background:rgba(255,255,255,0.95);
+background:rgba(255,255,255,0.93);
 padding:20px;
-border-radius:16px;
 margin-bottom:20px;
-color:black;
-box-shadow:0 10px 25px rgba(0,0,0,0.3);
+border-radius:16px;
+box-shadow:0 12px 28px rgba(0,0,0,0.3);
 }
 
 input,
 select,
 button{
 width:100%;
-padding:13px;
+padding:12px;
 margin-top:10px;
 border-radius:8px;
 border:1px solid #ccc;
@@ -54,8 +76,9 @@ button{
 background:#0a2a43;
 color:white;
 border:none;
-font-weight:bold;
 cursor:pointer;
+font-weight:600;
+transition:0.3s;
 }
 
 button:hover{
@@ -64,45 +87,57 @@ background:#06304d;
 
 .success{
 color:green;
+margin-top:10px;
 font-weight:bold;
 }
 
 .error{
 color:red;
+margin-top:10px;
 font-weight:bold;
 }
 
 .code-box{
+margin-top:15px;
+padding:15px;
 background:#0a2a43;
 color:white;
-padding:18px;
 border-radius:12px;
 text-align:center;
-font-size:28px;
+font-size:22px;
 font-weight:bold;
-margin-top:15px;
 letter-spacing:3px;
 }
 
 .panicBtn{
 background:#b30000;
-font-size:24px;
-padding:22px;
+font-size:20px;
+font-weight:bold;
+padding:18px;
 animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+
+0%{transform:scale(1);}
+50%{transform:scale(1.03);}
+100%{transform:scale(1);}
+
 }
 
 iframe{
 width:100%;
-height:350px;
+height:300px;
 border:none;
 border-radius:12px;
 margin-top:15px;
 }
 
-@keyframes pulse{
-0%{transform:scale(1);}
-50%{transform:scale(1.03);}
-100%{transform:scale(1);}
+footer{
+text-align:center;
+padding:10px;
+font-size:12px;
+background:rgba(255,255,255,0.7);
 }
 
 </style>
@@ -111,14 +146,64 @@ margin-top:15px;
 
 <body>
 
-<div class="container">
+<header>
+
+<div class="logo">
+<span class="j">J</span>
+<span class="s">S</span>
+<span class="t">T</span>
+</div>
+
+<div class="logo-sub">
+Jackson’s Smart Technologies
+</div>
+
+<p>
+Visitor Access Control System
+</p>
+
+</header>
 
 <!-- LOGIN -->
-<div class="card" id="auth">
+<div class="container" id="auth">
+
+<!-- PANIC BUTTON -->
+<div class="card">
+
+<h2 style="color:red;">
+🚨 Emergency Panic Button
+</h2>
+
+<p>
+Press only during emergency situations.
+Your live location will be sent to security.
+</p>
+
+<button
+class="panicBtn"
+onclick="activatePanic()"
+>
+🚨 ACTIVATE PANIC
+</button>
+
+<div id="panicStatus"></div>
+
+<iframe
+id="panicMap"
+style="display:none;">
+</iframe>
+
+</div>
+
+<!-- LOGIN -->
+<div class="card">
 
 <h2>Resident Login</h2>
 
-<input id="username" placeholder="Username">
+<input
+id="username"
+placeholder="Username"
+>
 
 <input
 id="password"
@@ -127,16 +212,21 @@ placeholder="Password"
 >
 
 <button onclick="login()">
-LOGIN
+Login
 </button>
 
-<hr>
+<div id="authMsg"></div>
 
-<h3>Create Resident Account</h3>
+</div>
+
+<!-- CREATE ACCOUNT -->
+<div class="card">
+
+<h2>Create Resident Account</h2>
 
 <input
 id="newUsername"
-placeholder="Complex Username"
+placeholder="Create Username"
 >
 
 <input
@@ -147,31 +237,36 @@ placeholder="House Number"
 <input
 id="newPassword"
 type="password"
-placeholder="Strong Password"
+placeholder="Create Password"
 >
 
 <button onclick="createAccount()">
-CREATE ACCOUNT
+Create Account
 </button>
 
-<div id="authMsg"></div>
+<div id="createMsg"></div>
 
 </div>
 
-<!-- MAIN APP -->
+</div>
+
+<!-- APP -->
 <div
+class="container"
 id="app"
 style="display:none;"
 >
 
-<!-- VISITOR -->
-<div class="card">
-
 <button onclick="logout()">
-LOGOUT
+Logout
 </button>
 
-<h2>Generate Visitor Access</h2>
+<!-- GENERATE ACCESS -->
+<div class="card">
+
+<h2>
+Resident – Generate Visitor Access
+</h2>
 
 <input
 id="residentName"
@@ -199,39 +294,22 @@ placeholder="Visitor Name"
 </select>
 
 <button onclick="generateCode()">
-GENERATE ACCESS CODE
+Generate Access Code
 </button>
 
 <div id="generatedResult"></div>
 
 </div>
 
-<!-- PANIC -->
-<div class="card">
-
-<h2 style="color:red;">
-🚨 LIVE PANIC SYSTEM
-</h2>
-
-<button
-class="panicBtn"
-onclick="triggerPanic()"
->
-🚨 ACTIVATE PANIC
-</button>
-
-<div id="panicOut"></div>
-
-<iframe
-id="map"
-style="display:none;">
-</iframe>
-
 </div>
 
-</div>
+<footer>
 
-</div>
+THIS SYSTEM REMAINS THE PROPERTY OF
+JACKSON SMART TECHNOLOGIES (PTY) LTD |
+REG 2026/320361/07
+
+</footer>
 
 <script type="module">
 
@@ -284,17 +362,39 @@ const password =
 document.getElementById("newPassword").value.trim();
 
 if(
-username.length < 6 ||
-password.length < 8 ||
-!house
+!username ||
+!house ||
+!password
 ){
 
-document.getElementById("authMsg").innerHTML =
-"<p class='error'>Use stronger details</p>";
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>Fill all fields</p>";
 
 return;
 
 }
+
+try{
+
+/* CHECK EXISTING USER */
+
+const q = query(
+collection(db,"residentAccounts"),
+where("username","==",username)
+);
+
+const snap = await getDocs(q);
+
+if(!snap.empty){
+
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>Username already exists</p>";
+
+return;
+
+}
+
+/* SAVE ACCOUNT */
 
 await addDoc(
 collection(db,"residentAccounts"),
@@ -306,8 +406,15 @@ created:Date.now()
 }
 );
 
-document.getElementById("authMsg").innerHTML =
-"<p class='success'>Account Created ✔</p>";
+document.getElementById("createMsg").innerHTML =
+"<p class='success'>Account Created Successfully ✔</p>";
+
+}catch(e){
+
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>"+e.message+"</p>";
+
+}
 
 };
 
@@ -320,6 +427,8 @@ document.getElementById("username").value.trim();
 
 const p =
 document.getElementById("password").value.trim();
+
+try{
 
 const q = query(
 collection(db,"residentAccounts"),
@@ -343,6 +452,13 @@ document.getElementById("auth").style.display =
 
 document.getElementById("app").style.display =
 "block";
+
+}catch(e){
+
+document.getElementById("authMsg").innerHTML =
+"<p class='error'>"+e.message+"</p>";
+
+}
 
 };
 
@@ -370,13 +486,21 @@ document.getElementById("visitorName").value;
 let hours =
 document.getElementById("hours").value;
 
-if(!resident || !house || !visitor){
+if(
+!resident
+||
+!house
+||
+!visitor
+){
 
 alert("Fill all fields");
 
 return;
 
 }
+
+/* RANDOM 6 DIGIT CODE */
 
 let code = Math.floor(
 100000 + Math.random()*900000
@@ -385,50 +509,78 @@ let code = Math.floor(
 let expiry =
 Date.now() + hours * 3600000;
 
+try{
+
 await addDoc(
 collection(db,"visitorCodes"),
 {
+
 resident,
-houseNumber:house,
+houseNumber: house,
 visitor,
-code:String(code),
+
+code: String(code),
+
 expiry,
-created:Date.now()
+
+created: Date.now()
+
 }
 );
 
-document.getElementById("generatedResult").innerHTML =
+/* SUCCESS */
+
+document.getElementById("generatedResult")
+.innerHTML =
 
 `
+
 <p class="success">
-Visitor Access Created ✔
+Visitor Access Created Successfully ✔
 </p>
 
 <div class="code-box">
+
 ${code}
+
 </div>
+
+<p style="margin-top:10px;">
+House Number:
+<b>${house}</b>
+</p>
+
 `;
+
+}catch(e){
+
+document.getElementById("generatedResult")
+.innerHTML =
+
+"<p class='error'>Firebase Error: "
++
+e.message
++
+"</p>";
+
+}
 
 };
 
-/* LIVE PANIC */
+/* PANIC BUTTON */
 
-let panicSending = false;
+window.activatePanic = async function(){
 
-window.triggerPanic = async function(){
+const status =
+document.getElementById("panicStatus");
 
-if(panicSending) return;
-
-panicSending = true;
-
-document.getElementById("panicOut").innerHTML =
-"<p class='error'>🚨 SENDING LIVE PANIC...</p>";
+status.innerHTML =
+"<p class='error'>Getting live location...</p>";
 
 if(!navigator.geolocation){
 
-alert("GPS NOT SUPPORTED");
-
-panicSending = false;
+status.innerHTML =
+"<p class='error'>GPS not supported</p>";
 
 return;
 
@@ -449,12 +601,27 @@ position.coords.longitude;
 const accuracy =
 position.coords.accuracy;
 
+/* SAVE TO FIREBASE */
+
+await addDoc(
+collection(db,"panicAlerts"),
+{
+
+latitude:lat,
+longitude:lng,
+accuracy,
+status:"ACTIVE",
+time:Date.now()
+
+}
+);
+
 /* SHOW MAP */
 
-document.getElementById("map").style.display =
+document.getElementById("panicMap").style.display =
 "block";
 
-document.getElementById("map").src =
+document.getElementById("panicMap").src =
 
 "https://maps.google.com/maps?q="
 +
@@ -466,47 +633,31 @@ lng
 +
 "&z=18&output=embed";
 
-/* SEND TO FIREBASE */
-
-await addDoc(
-collection(db,"panicAlerts"),
-{
-latitude:lat,
-longitude:lng,
-accuracy,
-status:"ACTIVE",
-time:Date.now()
-}
-);
-
-document.getElementById("panicOut").innerHTML =
+status.innerHTML =
 
 `
-<p class='error'>
+<p class='success'>
 🚨 PANIC ALERT SENT SUCCESSFULLY
 </p>
 
 <p>
-Live location sent to security
+Live location sent to security.
 </p>
 `;
 
 }catch(e){
 
-document.getElementById("panicOut").innerHTML =
+status.innerHTML =
 "<p class='error'>"+e.message+"</p>";
 
 }
-
-panicSending = false;
 
 },
 
 ()=>{
 
-alert("ALLOW LOCATION ACCESS");
-
-panicSending = false;
+status.innerHTML =
+"<p class='error'>Location permission denied</p>";
 
 },
 
