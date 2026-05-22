@@ -1,6 +1,4 @@
-<!-- =========================
-JST RESIDENT ACCESS SYSTEM
-========================= -->
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,7 +15,7 @@ body{
 margin:0;
 font-family:Segoe UI;
 background:
-linear-gradient(rgba(10,42,67,0.92),rgba(10,42,67,0.92)),
+linear-gradient(rgba(10,42,67,0.9),rgba(10,42,67,0.9)),
 url("https://images.unsplash.com/photo-1518770660439-4636190af475");
 
 background-size:cover;
@@ -160,7 +158,7 @@ CREATE ACCOUNT
 
 </div>
 
-<!-- APP -->
+<!-- MAIN APP -->
 <div
 id="app"
 style="display:none;"
@@ -254,11 +252,17 @@ from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
 const firebaseConfig = {
 
-apiKey:"YOUR_API_KEY",
+apiKey: "AIzaSyBD_sK8xF3m2t_s_b8ihzLx8XHs-M1MGGI",
 
-authDomain:"YOUR_DOMAIN",
+authDomain: "jackson-smart-technologi-1db26.firebaseapp.com",
 
-projectId:"YOUR_PROJECT_ID"
+projectId: "jackson-smart-technologi-1db26",
+
+storageBucket: "jackson-smart-technologi-1db26.firebasestorage.app",
+
+messagingSenderId: "400637493049",
+
+appId: "1:400637493049:web:8d349168400988493672e8"
 
 };
 
@@ -286,7 +290,6 @@ password.length < 8 ||
 ){
 
 document.getElementById("authMsg").innerHTML =
-
 "<p class='error'>Use stronger details</p>";
 
 return;
@@ -304,7 +307,6 @@ created:Date.now()
 );
 
 document.getElementById("authMsg").innerHTML =
-
 "<p class='success'>Account Created ✔</p>";
 
 };
@@ -330,7 +332,6 @@ const snap = await getDocs(q);
 if(snap.empty){
 
 document.getElementById("authMsg").innerHTML =
-
 "<p class='error'>Invalid Login</p>";
 
 return;
@@ -353,7 +354,7 @@ location.reload();
 
 };
 
-/* GENERATE VISITOR CODE */
+/* GENERATE CODE */
 
 window.generateCode = async function(){
 
@@ -421,7 +422,6 @@ if(panicSending) return;
 panicSending = true;
 
 document.getElementById("panicOut").innerHTML =
-
 "<p class='error'>🚨 SENDING LIVE PANIC...</p>";
 
 if(!navigator.geolocation){
@@ -466,7 +466,7 @@ lng
 +
 "&z=18&output=embed";
 
-/* SEND PANIC */
+/* SEND TO FIREBASE */
 
 await addDoc(
 collection(db,"panicAlerts"),
@@ -483,14 +483,17 @@ document.getElementById("panicOut").innerHTML =
 
 `
 <p class='error'>
-🚨 LIVE PANIC SENT
+🚨 PANIC ALERT SENT SUCCESSFULLY
+</p>
+
+<p>
+Live location sent to security
 </p>
 `;
 
 }catch(e){
 
 document.getElementById("panicOut").innerHTML =
-
 "<p class='error'>"+e.message+"</p>";
 
 }
