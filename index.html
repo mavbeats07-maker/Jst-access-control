@@ -1,3 +1,7 @@
+<!-- =========================
+JST RESIDENT ACCESS SYSTEM
+========================= -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,8 +17,9 @@ body{
 margin:0;
 font-family:Segoe UI;
 background:
-linear-gradient(rgba(10,42,67,0.9),rgba(10,42,67,0.9)),
+linear-gradient(rgba(10,42,67,0.92),rgba(10,42,67,0.92)),
 url("https://images.unsplash.com/photo-1518770660439-4636190af475");
+
 background-size:cover;
 background-position:center;
 min-height:100vh;
@@ -22,24 +27,25 @@ color:white;
 }
 
 .container{
-padding:20px;
-max-width:850px;
+max-width:900px;
 margin:auto;
+padding:20px;
 }
 
 .card{
 background:rgba(255,255,255,0.95);
 padding:20px;
-border-radius:15px;
+border-radius:16px;
 margin-bottom:20px;
 color:black;
+box-shadow:0 10px 25px rgba(0,0,0,0.3);
 }
 
 input,
 select,
 button{
 width:100%;
-padding:12px;
+padding:13px;
 margin-top:10px;
 border-radius:8px;
 border:1px solid #ccc;
@@ -71,33 +77,34 @@ font-weight:bold;
 .code-box{
 background:#0a2a43;
 color:white;
-padding:15px;
-border-radius:10px;
+padding:18px;
+border-radius:12px;
 text-align:center;
-font-size:25px;
+font-size:28px;
 font-weight:bold;
 margin-top:15px;
+letter-spacing:3px;
 }
 
 .panicBtn{
 background:#b30000;
 font-size:24px;
-padding:20px;
+padding:22px;
 animation:pulse 1s infinite;
+}
+
+iframe{
+width:100%;
+height:350px;
+border:none;
+border-radius:12px;
+margin-top:15px;
 }
 
 @keyframes pulse{
 0%{transform:scale(1);}
 50%{transform:scale(1.03);}
 100%{transform:scale(1);}
-}
-
-iframe{
-width:100%;
-height:300px;
-border:none;
-border-radius:12px;
-margin-top:15px;
 }
 
 </style>
@@ -108,6 +115,7 @@ margin-top:15px;
 
 <div class="container">
 
+<!-- LOGIN -->
 <div class="card" id="auth">
 
 <h2>Resident Login</h2>
@@ -126,7 +134,7 @@ LOGIN
 
 <hr>
 
-<h3>Create Account</h3>
+<h3>Create Resident Account</h3>
 
 <input
 id="newUsername"
@@ -158,6 +166,7 @@ id="app"
 style="display:none;"
 >
 
+<!-- VISITOR -->
 <div class="card">
 
 <button onclick="logout()">
@@ -203,7 +212,7 @@ GENERATE ACCESS CODE
 <div class="card">
 
 <h2 style="color:red;">
-🚨 EMERGENCY PANIC
+🚨 LIVE PANIC SYSTEM
 </h2>
 
 <button
@@ -241,13 +250,15 @@ getDocs
 }
 from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
+/* FIREBASE */
+
 const firebaseConfig = {
 
-apiKey:"AIzaSyBD_sK8xF3m2t_s_b8ihzLx8XHs-M1MGGI",
+apiKey:"YOUR_API_KEY",
 
-authDomain:"jackson-smart-technologi-1db26.firebaseapp.com",
+authDomain:"YOUR_DOMAIN",
 
-projectId:"jackson-smart-technologi-1db26"
+projectId:"YOUR_PROJECT_ID"
 
 };
 
@@ -275,6 +286,7 @@ password.length < 8 ||
 ){
 
 document.getElementById("authMsg").innerHTML =
+
 "<p class='error'>Use stronger details</p>";
 
 return;
@@ -292,6 +304,7 @@ created:Date.now()
 );
 
 document.getElementById("authMsg").innerHTML =
+
 "<p class='success'>Account Created ✔</p>";
 
 };
@@ -317,6 +330,7 @@ const snap = await getDocs(q);
 if(snap.empty){
 
 document.getElementById("authMsg").innerHTML =
+
 "<p class='error'>Invalid Login</p>";
 
 return;
@@ -339,7 +353,7 @@ location.reload();
 
 };
 
-/* GENERATE CODE */
+/* GENERATE VISITOR CODE */
 
 window.generateCode = async function(){
 
@@ -368,7 +382,7 @@ let code = Math.floor(
 );
 
 let expiry =
-Date.now() + hours*3600000;
+Date.now() + hours * 3600000;
 
 await addDoc(
 collection(db,"visitorCodes"),
@@ -396,19 +410,44 @@ ${code}
 
 };
 
-/* PANIC BUTTON */
+/* LIVE PANIC */
 
-window.triggerPanic = function(){
+let panicSending = false;
+
+window.triggerPanic = async function(){
+
+if(panicSending) return;
+
+panicSending = true;
+
+document.getElementById("panicOut").innerHTML =
+
+"<p class='error'>🚨 SENDING LIVE PANIC...</p>";
+
+if(!navigator.geolocation){
+
+alert("GPS NOT SUPPORTED");
+
+panicSending = false;
+
+return;
+
+}
 
 navigator.geolocation.getCurrentPosition(
 
 async(position)=>{
+
+try{
 
 const lat =
 position.coords.latitude;
 
 const lng =
 position.coords.longitude;
+
+const accuracy =
+position.coords.accuracy;
 
 /* SHOW MAP */
 
@@ -425,30 +464,53 @@ lat
 +
 lng
 +
-"&z=17&output=embed";
+"&z=18&output=embed";
 
-/* SAVE PANIC */
+/* SEND PANIC */
 
 await addDoc(
 collection(db,"panicAlerts"),
 {
 latitude:lat,
 longitude:lng,
-time:Date.now(),
-status:"ACTIVE"
+accuracy,
+status:"ACTIVE",
+time:Date.now()
 }
 );
 
 document.getElementById("panicOut").innerHTML =
 
-"<p class='error'>🚨 PANIC SENT TO SECURITY</p>";
+`
+<p class='error'>
+🚨 LIVE PANIC SENT
+</p>
+`;
+
+}catch(e){
+
+document.getElementById("panicOut").innerHTML =
+
+"<p class='error'>"+e.message+"</p>";
+
+}
+
+panicSending = false;
 
 },
 
 ()=>{
 
-alert("Location permission denied");
+alert("ALLOW LOCATION ACCESS");
 
+panicSending = false;
+
+},
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
 }
 
 );
