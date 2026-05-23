@@ -3,30 +3,51 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JST Resident Control</title>
+<title>JST – Visitor Access Control</title>
 
 <style>
+
 body{
 margin:0;
-font-family:Segoe UI;
-background:#0a2a43;
-color:white;
+min-height:100vh;
+font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
+
+background:
+linear-gradient(rgba(10,42,67,0.88), rgba(10,42,67,0.88)),
+url("https://images.unsplash.com/photo-1518770660439-4636190af475");
+
+background-size:cover;
+background-position:center;
+background-attachment:fixed;
 }
 
 .container{padding:20px;}
 
+header{text-align:center;padding:25px 10px;}
+
+.logo{font-size:46px;font-weight:900;letter-spacing:5px;}
+.logo .j{color:#000;}
+.logo .s{color:#0a2a43;}
+.logo .t{color:#000;}
+
+.logo-sub{color:#e0e0e0;font-size:14px;margin-top:5px;}
+
+header p{color:white;margin-top:10px;}
+
 .card{
-background:white;
-color:black;
-padding:15px;
-margin-bottom:15px;
-border-radius:12px;
+background:rgba(255,255,255,0.93);
+padding:20px;
+margin-bottom:20px;
+border-radius:16px;
+box-shadow:0 12px 28px rgba(0,0,0,0.3);
 }
 
-input,button{
+input,button,select{
 width:100%;
-padding:10px;
-margin-top:8px;
+padding:12px;
+margin-top:10px;
+border-radius:8px;
+border:1px solid #ccc;
 }
 
 button{
@@ -34,71 +55,99 @@ background:#0a2a43;
 color:white;
 border:none;
 cursor:pointer;
+font-weight:600;
 }
+
+button:hover{background:#06304d;}
 
 .panicBtn{
 background:red;
-font-weight:bold;
 font-size:18px;
+font-weight:bold;
 animation:pulse 1s infinite;
 }
 
 @keyframes pulse{
 0%{transform:scale(1)}
-50%{transform:scale(1.05)}
+50%{transform:scale(1.03)}
 100%{transform:scale(1)}
 }
 
-.hidden{display:none;}
+.code-box{
+margin-top:15px;
+padding:15px;
+background:#0a2a43;
+color:white;
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
 
-#map{
+iframe{
 width:100%;
 height:250px;
-display:none;
+border:none;
 margin-top:10px;
-border-radius:10px;
+display:none;
 }
+
+.success{color:green;font-weight:bold;}
+.error{color:red;font-weight:bold;}
+
 </style>
 </head>
 
 <body>
 
+<header>
+<div class="logo">J S T</div>
+<div class="logo-sub">Jackson’s Smart Technologies</div>
+<p>Visitor Access Control System</p>
+</header>
+
 <div class="container">
 
 <!-- PANIC -->
 <div class="card">
-<h2 style="color:red;">🚨 EMERGENCY PANIC</h2>
-
-<button class="panicBtn" onclick="panic()">
-ACTIVATE PANIC
-</button>
-
-<div id="panicMsg"></div>
+<h2 style="color:red;">🚨 PANIC BUTTON</h2>
+<button class="panicBtn" onclick="activatePanic()">ACTIVATE PANIC</button>
+<p id="panicMsg"></p>
 <iframe id="map"></iframe>
+</div>
+
+<!-- CREATE ACCOUNT -->
+<div class="card">
+<h3>Create Account</h3>
+<input id="u" placeholder="Username">
+<input id="h" placeholder="House Number">
+<input id="p" type="password" placeholder="Password">
+<button onclick="createAccount()">Create</button>
+<p id="cmsg"></p>
 </div>
 
 <!-- LOGIN -->
 <div class="card">
 <h3>Login</h3>
-<input id="user" placeholder="Username">
-<input id="pass" type="password" placeholder="Password">
+<input id="lu">
+<input id="lp" type="password">
 <button onclick="login()">Login</button>
-<div id="loginMsg"></div>
+<p id="lmsg"></p>
 </div>
 
-<!-- TOGGLE CREATE ACCOUNT -->
+<!-- GENERATE CODE -->
 <div class="card">
-<h3 onclick="toggleCreate()" style="cursor:pointer;">
-➕ Create Account (Click)
-</h3>
+<h3>Generate Access Code</h3>
+<input id="res">
+<input id="house">
+<input id="vis">
+<select id="hrs">
+<option value="1">1 Hour</option>
+<option value="2">2 Hours</option>
+<option value="4">4 Hours</option>
+</select>
 
-<div id="createBox" class="hidden">
-<input id="newUser" placeholder="Username">
-<input id="newHouse" placeholder="House Number">
-<input id="newPass" type="password" placeholder="Password">
-<button onclick="createAccount()">Create</button>
-<div id="accMsg"></div>
-</div>
+<button onclick="generateCode()">Generate</button>
+<p id="out"></p>
 </div>
 
 </div>
@@ -115,68 +164,59 @@ where,
 getDocs
 } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const firebaseConfig = {
-apiKey: "YOUR_KEY",
-authDomain: "YOUR_DOMAIN",
-projectId: "YOUR_PROJECT"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-/* TOGGLE ACCOUNT */
-window.toggleCreate = function(){
-document.getElementById("createBox").classList.toggle("hidden");
-};
-
-/* CREATE ACCOUNT */
-window.createAccount = async function(){
-
-await addDoc(collection(db,"residentAccounts"),{
-username:newUser.value,
-house:newHouse.value,
-password:newPass.value,
-created:Date.now()
+const app = initializeApp({
+apiKey:"YOUR_KEY",
+authDomain:"YOUR_DOMAIN",
+projectId:"YOUR_PROJECT"
 });
 
-accMsg.innerHTML="Account Created ✔";
+const db = getFirestore(app);
+
+/* CREATE */
+window.createAccount = async function(){
+await addDoc(collection(db,"accounts"),{
+username:u.value,
+house:h.value,
+password:p.value
+});
+cmsg.innerHTML="✔ Account created";
 };
 
 /* LOGIN */
 window.login = async function(){
+const q=query(collection(db,"accounts"),
+where("username","==",lu.value),
+where("password","==",lp.value));
 
-const q=query(
-collection(db,"residentAccounts"),
-where("username","==",user.value),
-where("password","==",pass.value)
-);
-
-const snap=await getDocs(q);
-
-if(snap.empty){
-loginMsg.innerHTML="Invalid Login";
-return;
-}
-
-loginMsg.innerHTML="Logged in ✔";
+const s=await getDocs(q);
+lmsg.innerHTML=s.empty?"❌ Invalid":"✔ Logged in";
 };
 
-/* PANIC (REAL TIME) */
-window.panic = function(){
+/* GENERATE CODE */
+window.generateCode = async function(){
+await addDoc(collection(db,"visitorCodes"),{
+resident:res.value,
+house:house.value,
+visitor:vis.value,
+code:Math.floor(100000+Math.random()*900000),
+expiry:Date.now()+3600000
+});
+out.innerHTML="✔ Generated";
+};
+
+/* PANIC SYSTEM */
+window.activatePanic = function(){
 
 navigator.geolocation.getCurrentPosition(async(pos)=>{
 
-const lat=pos.coords.latitude;
-const lng=pos.coords.longitude;
+const lat = pos.coords.latitude;
+const lng = pos.coords.longitude;
 
 await addDoc(collection(db,"panicAlerts"),{
-lat,
-lng,
-time:Date.now(),
-status:"ACTIVE"
+lat,lng,time:Date.now()
 });
 
-panicMsg.innerHTML="🚨 ALERT SENT";
+panicMsg.innerHTML="🚨 SENT";
 
 map.style.display="block";
 map.src=`https://maps.google.com/maps?q=${lat},${lng}&z=18&output=embed`;
