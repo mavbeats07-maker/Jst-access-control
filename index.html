@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>JST – Visitor Access Control</title>
 
 <style>
@@ -21,18 +23,35 @@ background-position:center;
 background-attachment:fixed;
 }
 
-.container{padding:20px;}
+.container{
+padding:20px;
+}
 
-header{text-align:center;padding:25px 10px;}
+header{
+text-align:center;
+padding:25px 10px;
+}
 
-.logo{font-size:46px;font-weight:900;letter-spacing:5px;}
+.logo{
+font-size:46px;
+font-weight:900;
+letter-spacing:5px;
+}
+
 .logo .j{color:#000;}
 .logo .s{color:#0a2a43;}
 .logo .t{color:#000;}
 
-.logo-sub{color:#e0e0e0;font-size:14px;margin-top:5px;}
+.logo-sub{
+color:#e0e0e0;
+font-size:14px;
+margin-top:5px;
+}
 
-header p{color:white;margin-top:10px;}
+header p{
+color:white;
+margin-top:10px;
+}
 
 .card{
 background:rgba(255,255,255,0.93);
@@ -42,12 +61,15 @@ border-radius:16px;
 box-shadow:0 12px 28px rgba(0,0,0,0.3);
 }
 
-input,button,select{
+input,
+select,
+button{
 width:100%;
 padding:12px;
 margin-top:10px;
 border-radius:8px;
 border:1px solid #ccc;
+font-size:15px;
 }
 
 button{
@@ -56,21 +78,23 @@ color:white;
 border:none;
 cursor:pointer;
 font-weight:600;
+transition:0.3s;
 }
 
-button:hover{background:#06304d;}
+button:hover{
+background:#06304d;
+}
 
-.panicBtn{
-background:red;
-font-size:18px;
+.success{
+color:green;
+margin-top:10px;
 font-weight:bold;
-animation:pulse 1s infinite;
 }
 
-@keyframes pulse{
-0%{transform:scale(1)}
-50%{transform:scale(1.03)}
-100%{transform:scale(1)}
+.error{
+color:red;
+margin-top:10px;
+font-weight:bold;
 }
 
 .code-box{
@@ -78,83 +102,245 @@ margin-top:15px;
 padding:15px;
 background:#0a2a43;
 color:white;
+border-radius:12px;
 text-align:center;
 font-size:22px;
 font-weight:bold;
+letter-spacing:3px;
+}
+
+.panicBtn{
+background:#b30000;
+font-size:20px;
+font-weight:bold;
+padding:18px;
+animation:pulse 1s infinite;
+}
+
+@keyframes pulse{
+
+0%{transform:scale(1);}
+50%{transform:scale(1.03);}
+100%{transform:scale(1);}
+
 }
 
 iframe{
 width:100%;
-height:250px;
+height:300px;
 border:none;
-margin-top:10px;
-display:none;
+border-radius:12px;
+margin-top:15px;
 }
 
-.success{color:green;font-weight:bold;}
-.error{color:red;font-weight:bold;}
+footer{
+text-align:center;
+padding:10px;
+font-size:12px;
+background:rgba(255,255,255,0.7);
+}
+
+#createPopup{
+display:none;
+animation:fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn{
+from{
+opacity:0;
+transform:translateY(-10px);
+}
+to{
+opacity:1;
+transform:translateY(0);
+}
+}
 
 </style>
+
 </head>
 
 <body>
 
 <header>
-<div class="logo">J S T</div>
-<div class="logo-sub">Jackson’s Smart Technologies</div>
-<p>Visitor Access Control System</p>
-</header>
 
-<div class="container">
-
-<!-- PANIC -->
-<div class="card">
-<h2 style="color:red;">🚨 PANIC BUTTON</h2>
-<button class="panicBtn" onclick="activatePanic()">ACTIVATE PANIC</button>
-<p id="panicMsg"></p>
-<iframe id="map"></iframe>
+<div class="logo">
+<span class="j">J</span>
+<span class="s">S</span>
+<span class="t">T</span>
 </div>
 
-<!-- CREATE ACCOUNT -->
+<div class="logo-sub">
+Jackson’s Smart Technologies
+</div>
+
+<p>
+Visitor Access Control System
+</p>
+
+</header>
+
+<div class="container" id="auth">
+
+<!-- PANIC BUTTON -->
 <div class="card">
-<h3>Create Account</h3>
-<input id="u" placeholder="Username">
-<input id="h" placeholder="House Number">
-<input id="p" type="password" placeholder="Password">
-<button onclick="createAccount()">Create</button>
-<p id="cmsg"></p>
+
+<h2 style="color:red;">
+🚨 Emergency Panic Button
+</h2>
+
+<p>
+Press only during emergency situations.
+Your live location will be sent instantly.
+</p>
+
+<button
+class="panicBtn"
+onclick="activatePanic()"
+>
+🚨 ACTIVATE PANIC
+</button>
+
+<div id="panicStatus"></div>
+
+<iframe
+id="panicMap"
+style="display:none;">
+</iframe>
+
 </div>
 
 <!-- LOGIN -->
 <div class="card">
-<h3>Login</h3>
-<input id="lu">
-<input id="lp" type="password">
-<button onclick="login()">Login</button>
-<p id="lmsg"></p>
+
+<h2>Resident Login</h2>
+
+<input
+id="username"
+placeholder="Username"
+>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+>
+
+<button onclick="login()">
+Login
+</button>
+
+<div id="authMsg"></div>
+
+<hr style="margin:20px 0;">
+
+<button
+style="
+background:#00a651;
+font-size:16px;
+font-weight:bold;
+"
+onclick="toggleCreateBox()"
+>
+Create New Account
+</button>
+
+<!-- POPUP ACCOUNT CREATION -->
+<div id="createPopup">
+
+<input
+id="newUsername"
+placeholder="Create Username"
+>
+
+<input
+id="newHouse"
+placeholder="House Number"
+>
+
+<input
+id="newPassword"
+type="password"
+placeholder="Create Password"
+>
+
+<button onclick="createAccount()">
+Create Account
+</button>
+
+<div id="createMsg"></div>
+
 </div>
 
-<!-- GENERATE CODE -->
+</div>
+
+</div>
+
+<!-- APP -->
+<div
+class="container"
+id="app"
+style="display:none;"
+>
+
+<button onclick="logout()">
+Logout
+</button>
+
 <div class="card">
-<h3>Generate Access Code</h3>
-<input id="res">
-<input id="house">
-<input id="vis">
-<select id="hrs">
+
+<h2>
+Resident – Generate Visitor Access
+</h2>
+
+<input
+id="residentName"
+placeholder="Resident Name"
+>
+
+<input
+id="houseNumber"
+placeholder="House Number"
+>
+
+<input
+id="visitorName"
+placeholder="Visitor Name"
+>
+
+<select id="hours">
+
 <option value="1">1 Hour</option>
 <option value="2">2 Hours</option>
 <option value="4">4 Hours</option>
+<option value="8">8 Hours</option>
+<option value="24">24 Hours</option>
+
 </select>
 
-<button onclick="generateCode()">Generate</button>
-<p id="out"></p>
+<button onclick="generateCode()">
+Generate Access Code
+</button>
+
+<div id="generatedResult"></div>
+
 </div>
 
 </div>
+
+<footer>
+
+THIS SYSTEM REMAINS THE PROPERTY OF
+JACKSON SMART TECHNOLOGIES (PTY) LTD |
+REG 2026/320361/07
+
+</footer>
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+
 import {
 getFirestore,
 collection,
@@ -162,66 +348,340 @@ addDoc,
 query,
 where,
 getDocs
-} from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-const app = initializeApp({
-apiKey:"YOUR_KEY",
-authDomain:"YOUR_DOMAIN",
-projectId:"YOUR_PROJECT"
-});
+/* FIREBASE */
+
+const firebaseConfig = {
+
+apiKey: "AIzaSyBD_sK8xF3m2t_s_b8ihzLx8XHs-M1MGGI",
+
+authDomain: "jackson-smart-technologi-1db26.firebaseapp.com",
+
+projectId: "jackson-smart-technologi-1db26",
+
+storageBucket: "jackson-smart-technologi-1db26.firebasestorage.app",
+
+messagingSenderId: "400637493049",
+
+appId: "1:400637493049:web:8d349168400988493672e8"
+
+};
+
+const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
 
-/* CREATE */
+/* TOGGLE CREATE ACCOUNT */
+
+window.toggleCreateBox = function(){
+
+const box =
+document.getElementById("createPopup");
+
+if(box.style.display === "none"){
+
+box.style.display = "block";
+
+}else{
+
+box.style.display = "none";
+
+}
+
+};
+
+/* CREATE ACCOUNT */
+
 window.createAccount = async function(){
-await addDoc(collection(db,"accounts"),{
-username:u.value,
-house:h.value,
-password:p.value
-});
-cmsg.innerHTML="✔ Account created";
+
+const username =
+document.getElementById("newUsername").value.trim();
+
+const house =
+document.getElementById("newHouse").value.trim();
+
+const password =
+document.getElementById("newPassword").value.trim();
+
+if(!username || !house || !password){
+
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>Fill all fields</p>";
+
+return;
+
+}
+
+try{
+
+const q = query(
+collection(db,"residentAccounts"),
+where("username","==",username)
+);
+
+const snap = await getDocs(q);
+
+if(!snap.empty){
+
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>Username already exists</p>";
+
+return;
+
+}
+
+await addDoc(
+collection(db,"residentAccounts"),
+{
+username,
+house,
+password,
+created:Date.now()
+}
+);
+
+document.getElementById("createMsg").innerHTML =
+"<p class='success'>Account Created Successfully ✔</p>";
+
+}catch(e){
+
+document.getElementById("createMsg").innerHTML =
+"<p class='error'>"+e.message+"</p>";
+
+}
+
 };
 
 /* LOGIN */
+
 window.login = async function(){
-const q=query(collection(db,"accounts"),
-where("username","==",lu.value),
-where("password","==",lp.value));
 
-const s=await getDocs(q);
-lmsg.innerHTML=s.empty?"❌ Invalid":"✔ Logged in";
+const u =
+document.getElementById("username").value.trim();
+
+const p =
+document.getElementById("password").value.trim();
+
+try{
+
+const q = query(
+collection(db,"residentAccounts"),
+where("username","==",u),
+where("password","==",p)
+);
+
+const snap = await getDocs(q);
+
+if(snap.empty){
+
+document.getElementById("authMsg").innerHTML =
+"<p class='error'>Invalid Login</p>";
+
+return;
+
+}
+
+document.getElementById("auth").style.display =
+"none";
+
+document.getElementById("app").style.display =
+"block";
+
+}catch(e){
+
+document.getElementById("authMsg").innerHTML =
+"<p class='error'>"+e.message+"</p>";
+
+}
+
 };
 
-/* GENERATE CODE */
+/* LOGOUT */
+
+window.logout = function(){
+
+location.reload();
+
+};
+
+/* GENERATE ACCESS */
+
 window.generateCode = async function(){
-await addDoc(collection(db,"visitorCodes"),{
-resident:res.value,
-house:house.value,
-visitor:vis.value,
-code:Math.floor(100000+Math.random()*900000),
-expiry:Date.now()+3600000
-});
-out.innerHTML="✔ Generated";
+
+let resident =
+document.getElementById("residentName").value;
+
+let house =
+document.getElementById("houseNumber").value;
+
+let visitor =
+document.getElementById("visitorName").value;
+
+let hours =
+document.getElementById("hours").value;
+
+if(!resident || !house || !visitor){
+
+alert("Fill all fields");
+
+return;
+
+}
+
+let code = Math.floor(
+100000 + Math.random()*900000
+);
+
+let expiry =
+Date.now() + hours * 3600000;
+
+try{
+
+await addDoc(
+collection(db,"visitorCodes"),
+{
+resident,
+houseNumber: house,
+visitor,
+code: String(code),
+expiry,
+created: Date.now()
+}
+);
+
+document.getElementById("generatedResult")
+.innerHTML =
+
+`
+
+<p class="success">
+Visitor Access Created Successfully ✔
+</p>
+
+<div class="code-box">
+${code}
+</div>
+
+<p style="margin-top:10px;">
+House Number:
+<b>${house}</b>
+</p>
+
+`;
+
+}catch(e){
+
+document.getElementById("generatedResult")
+.innerHTML =
+
+"<p class='error'>Firebase Error: "
++
+e.message
++
+"</p>";
+
+}
+
 };
 
-/* PANIC SYSTEM */
-window.activatePanic = function(){
+/* PANIC BUTTON */
 
-navigator.geolocation.getCurrentPosition(async(pos)=>{
+window.activatePanic = async function(){
 
-const lat = pos.coords.latitude;
-const lng = pos.coords.longitude;
+const status =
+document.getElementById("panicStatus");
 
-await addDoc(collection(db,"panicAlerts"),{
-lat,lng,time:Date.now()
-});
+status.innerHTML =
+"<p class='error'>Getting live location...</p>";
 
-panicMsg.innerHTML="🚨 SENT";
+if(!navigator.geolocation){
 
-map.style.display="block";
-map.src=`https://maps.google.com/maps?q=${lat},${lng}&z=18&output=embed`;
+status.innerHTML =
+"<p class='error'>GPS not supported</p>";
 
-});
+return;
+
+}
+
+navigator.geolocation.getCurrentPosition(
+
+async(position)=>{
+
+try{
+
+const lat =
+position.coords.latitude;
+
+const lng =
+position.coords.longitude;
+
+const accuracy =
+position.coords.accuracy;
+
+await addDoc(
+collection(db,"panicAlerts"),
+{
+latitude:lat,
+longitude:lng,
+accuracy,
+status:"ACTIVE",
+time:Date.now()
+}
+);
+
+document.getElementById("panicMap").style.display =
+"block";
+
+document.getElementById("panicMap").src =
+
+"https://maps.google.com/maps?q="
++
+lat
++
+","
++
+lng
++
+"&z=18&output=embed";
+
+status.innerHTML =
+
+`
+<p class='success'>
+🚨 PANIC ALERT SENT SUCCESSFULLY
+</p>
+
+<p>
+Live location sent instantly.
+</p>
+`;
+
+}catch(e){
+
+status.innerHTML =
+"<p class='error'>"+e.message+"</p>";
+
+}
+
+},
+
+()=>{
+
+status.innerHTML =
+"<p class='error'>Location permission denied</p>";
+
+},
+
+{
+enableHighAccuracy:true,
+timeout:15000,
+maximumAge:0
+}
+
+);
+
 };
 
 </script>
